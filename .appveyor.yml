@@ -13,7 +13,6 @@ environment:
 cache:
 - C:\tools\vcpkg\installed -> .appveyor.yml
 - C:\Users\appveyor\clcache -> .appveyor.yml, build_msvc\**, **\Makefile.am, **\*.vcxproj.in
-- C:\Qt
 install:
 # - cmd: pip install --quiet git+https://github.com/frerich/clcache.git@v4.2.0
 # Disable zmq test for now since python zmq library on Windows would cause Access violation sometimes.
@@ -23,19 +22,19 @@ install:
 #- cmd: vcpkg install --triplet %PLATFORM%-windows-static %PACKAGES% > NUL
 before_build:
 #- ps:  clcache -M 536870912
-- cmd: dir c:\Qt
+- cmd: dir C:\Qt\5.9.7\msvc2017_64
 - ps:  Write-Host "Powershell single line script."
 - ps: |
        Write-Host "Powershell multi line script 1."
        Write-Host "Powershell multi line script 2."
 - ps: |
-       if(!(Test-Path -Path c:\qt)) { 
+       if(!(Test-Path -Path C:\Qtv5.9.7_ssl_x64_static_vs2017)) { 
          Write-Host "Downloading Qtv5.9.7 binaries."; 
-         Invoke-WebRequest -Uri https://github.com/sipsorcery/qt_win_binary/releases/download/Binary/Qt5.9.7_ssl_x64_vs2017_static.zip -Out qt.zip;
-         Expand-Archive qt.zip -DestinationPath c:\qt;
+         Invoke-WebRequest -Uri https://github.com/sipsorcery/qt_win_binary/releases/download/Binary/Qt5.9.7_ssl_x64_vs2017_static.zip -Out Qtv5.9.7_ssl_x64_static_vs2017.zip;
+         Expand-Archive Qtv5.9.7_ssl_x64_static_vs2017.zip -DestinationPath c:\Qtv5.9.7_ssl_x64_static_vs2017;
          Write-Host "Qtv5.9.7 binaries successfully downloaded.";
        }
-- cmd: dir c:\Qt
+- cmd: dir c:\Qtv5.9.7_ssl_x64_static_vs2017
 - cmd: python build_msvc\msvc-autogen.py
 - ps:  $files = (Get-ChildItem -Recurse | where {$_.extension -eq ".vcxproj"}).FullName
 - ps:  for (${i} = 0; ${i} -lt ${files}.length; ${i}++) {
