@@ -23,6 +23,7 @@ install:
 #- cmd: vcpkg install --triplet %PLATFORM%-windows-static %PACKAGES% > NUL
 before_build:
 #- ps:  clcache -M 536870912
+- cmd: dir c:\Qt
 - ps:  Write-Host "Powershell single line script."
 - ps: |
        Write-Host "Powershell multi line script 1."
@@ -34,6 +35,7 @@ before_build:
          Expand-Archive qt.zip -DestinationPath c:\qt;
          Write-Host "Qtv5.9.7 binaries successfully downloaded.";
        }
+- cmd: dir c:\Qt
 - cmd: python build_msvc\msvc-autogen.py
 - ps:  $files = (Get-ChildItem -Recurse | where {$_.extension -eq ".vcxproj"}).FullName
 - ps:  for (${i} = 0; ${i} -lt ${files}.length; ${i}++) {
