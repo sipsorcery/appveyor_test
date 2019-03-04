@@ -13,6 +13,7 @@ environment:
 cache:
 - C:\tools\vcpkg\installed -> .appveyor.yml
 - C:\Users\appveyor\clcache -> .appveyor.yml, build_msvc\**, **\Makefile.am, **\*.vcxproj.in
+- C:\Qtv5.9.7_ssl_x64_static_vs2017
 install:
 # - cmd: pip install --quiet git+https://github.com/frerich/clcache.git@v4.2.0
 # Disable zmq test for now since python zmq library on Windows would cause Access violation sometimes.
@@ -34,7 +35,10 @@ before_build:
          Expand-Archive Qtv5.9.7_ssl_x64_static_vs2017.zip -DestinationPath c:\Qtv5.9.7_ssl_x64_static_vs2017;
          Write-Host "Qtv5.9.7 binaries successfully downloaded.";
        }
-- cmd: dir c:\Qtv5.9.7_ssl_x64_static_vs2017
+       else {
+         Write-Host "Qtv5.9.7 binaries already present.";
+       }
+- cmd: dir c:\Qtv5.9.7_ssl_x64_static_vs2017\Qt
 - cmd: python build_msvc\msvc-autogen.py
 - ps:  $files = (Get-ChildItem -Recurse | where {$_.extension -eq ".vcxproj"}).FullName
 - ps:  for (${i} = 0; ${i} -lt ${files}.length; ${i}++) {
