@@ -15,7 +15,7 @@ cache:
 - C:\Users\appveyor\clcache -> .appveyor.yml, build_msvc\**, **\Makefile.am, **\*.vcxproj.in
 - C:\Qt
 install:
-- cmd: pip install --quiet git+https://github.com/frerich/clcache.git@v4.2.0
+# - cmd: pip install --quiet git+https://github.com/frerich/clcache.git@v4.2.0
 # Disable zmq test for now since python zmq library on Windows would cause Access violation sometimes.
 # - cmd: pip install zmq
 - cmd: echo set(VCPKG_BUILD_TYPE release) >> C:\tools\vcpkg\triplets\%PLATFORM%-windows-static.cmake
@@ -24,9 +24,11 @@ install:
 before_build:
 - ps:  clcache -M 536870912
 - ps:  Write-Host "Powershell single line script."
-- ps:  Write-Host "Powershell multi line script 1."
+- ps: |
+       Write-Host "Powershell multi line script 1."
        Write-Host "Powershell multi line script 2."
-- ps:  if(!(Test-Path -Path c:\qt)) { 
+- ps: |
+       if(!(Test-Path -Path c:\qt)) { 
          Write-Host "Downloading Qtv5.9.7 binaries."; 
          Invoke-WebRequest -Uri https://github.com/sipsorcery/qt_win_binary/releases/download/Binary/Qt5.9.7_ssl_x64_vs2017_static.zip -Out qt.zip;
          Expand-Archive qt.zip -DestinationPath c:\qt;
