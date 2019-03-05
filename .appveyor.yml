@@ -10,36 +10,43 @@ environment:
   PACKAGES: berkeleydb boost-filesystem boost-signals2 boost-test libevent openssl rapidcheck zeromq
   PATH: 'C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%'
   PYTHONUTF8: 1
+  QT_DOWNLOAD_URL: 'https://github.com/sipsorcery/qt_win_binary/releases/download/Binary/Qt5.9.7_ssl_x64_static_vs2017.zip'
+  QT_DOWNLOAD_HASH: 'D4D35B8112302B67E5610A03421BB3E43FE13F14D9A5F637C22AE60DCEC0E0F5'
+  QT_LOCAL_PATH: 'c:\Qt5.9.7_ssl_x64_static_vs2017'
 cache:
 - C:\tools\vcpkg\installed -> .appveyor.yml
 - C:\Users\appveyor\clcache -> .appveyor.yml, build_msvc\**, **\Makefile.am, **\*.vcxproj.in
-- C:\Qtv5.9.7_ssl_x64_static_vs2017
+- %QT_LOCAL_PATH%
 install:
 # - cmd: pip install --quiet git+https://github.com/frerich/clcache.git@v4.2.0
 # Disable zmq test for now since python zmq library on Windows would cause Access violation sometimes.
 # - cmd: pip install zmq
-- cmd: echo set(VCPKG_BUILD_TYPE release) >> C:\tools\vcpkg\triplets\%PLATFORM%-windows-static.cmake
-- cmd: vcpkg remove --outdated --recurse
+#- cmd: echo set(VCPKG_BUILD_TYPE release) >> C:\tools\vcpkg\triplets\%PLATFORM%-windows-static.cmake
+#- cmd: vcpkg remove --outdated --recurse
 #- cmd: vcpkg install --triplet %PLATFORM%-windows-static %PACKAGES% > NUL
 before_build:
 #- ps:  clcache -M 536870912
-- cmd: dir C:\Qt\5.9.7\msvc2017_64
-- ps:  Write-Host "Powershell single line script."
+- cmd: dir %QT_LOCAL_PATH%
 - ps: |
-       Write-Host "Powershell multi line script 1."
-       Write-Host "Powershell multi line script 2."
-- ps: |
-       if(!(Test-Path -Path C:\Qtv5.9.7_ssl_x64_static_vs2017)) { 
-         Write-Host "Downloading Qtv5.9.7 binaries."; 
-         Invoke-WebRequest -Uri https://github.com/sipsorcery/qt_win_binary/releases/download/Binary/Qt5.9.7_ssl_x64_vs2017_static.zip -Out Qtv5.9.7_ssl_x64_static_vs2017.zip;
-         Expand-Archive Qtv5.9.7_ssl_x64_static_vs2017.zip -DestinationPath c:\Qtv5.9.7_ssl_x64_static_vs2017;
-         Write-Host "Qtv5.9.7 binaries successfully downloaded.";
-       }
-       else {
-         Write-Host "Qtv5.9.7 binaries already present.";
-       }
-- cmd: dir c:\Qtv5.9.7_ssl_x64_static_vs2017\Qt
+      if(!(Test-Path -Path %QT_LOCAL_PATH%)) { 
+        Write-Host "Downloading Qtv5.9.7 binaries."; 
+        Invoke-WebRequest -Uri %QT_DOWNLOAD_URL% -Out qtdownload.zip;
+        Write-Host "Qtv5.9.7 binaries successfully downloaded.";
+        if((Get-FileHash qtdownload.zip).Hash == "%QT_DOWNLOAD_HASH%") {
+          Expand-Archive qtdownload.zip -DestinationPath %QT_LOCAL_PATH%;
+          Write-Host "Qt binary download matched the expected hash.";
+        }
+        else {
+          Write-Host "ERROR: Qt binary download did not match the expected hash.";
+          Exit-AppveyorBuild;
+        }
+      }
+      else {
+         Write-Host "Qt binaries already present.";
+      }
+- cmd: dir %QT_LOCAL_PATH%
 - cmd: python build_msvc\msvc-autogen.py
+- ps:  Exit-AppveyorBuild;
 - ps:  $files = (Get-ChildItem -Recurse | where {$_.extension -eq ".vcxproj"}).FullName
 - ps:  for (${i} = 0; ${i} -lt ${files}.length; ${i}++) {
            ${content} = (Get-Content ${files}[${i}]);
