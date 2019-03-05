@@ -25,7 +25,7 @@ environment:
 #- cmd: vcpkg install --triplet %PLATFORM%-windows-static %PACKAGES% > NUL
 before_build:
 #- ps:  clcache -M 536870912
-- cmd: dir %QT_LOCAL_PATH%
+#- cmd: dir %QT_LOCAL_PATH%
 - ps: |
       if(!(Test-Path -Path ($env:QT_LOCAL_PATH))) { 
         Write-Host "Downloading Qt binaries."; 
