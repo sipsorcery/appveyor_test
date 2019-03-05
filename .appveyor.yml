@@ -30,8 +30,8 @@ before_build:
       if(!(Test-Path -Path ($env:QT_LOCAL_PATH))) { 
         Write-Host "Downloading Qt binaries."; 
         Invoke-WebRequest -Uri $env:QT_DOWNLOAD_URL -Out qtdownload.zip;
-        Write-Host "Qt binaries successfully downloaded.";
-        if((Get-FileHash qtdownload.zip).Hash == "$env:QT_DOWNLOAD_HASH") {
+        Write-Host "Qt binaries successfully downloaded, checking hash.";
+        if((Get-FileHash qtdownload.zip).Hash -eq $env:QT_DOWNLOAD_HASH) {
           Expand-Archive qtdownload.zip -DestinationPath $env:QT_LOCAL_PATH;
           Write-Host "Qt binary download matched the expected hash.";
         }
